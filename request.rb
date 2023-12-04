@@ -1,5 +1,5 @@
+
 class Request
-  
   def initialize(request_string)
     @request_lines = request_string.split("\n")
     parse_request
@@ -12,7 +12,10 @@ class Request
   end
 
   def parse_request_line
-    @method, @resource, @version = @request_lines[0].split(' ')
+    request_line = @request_lines[0].split("\n")
+    @method = request_line[0]
+    @resource = request_line[1]
+    @version = request_line[2]
   end
 
   def parse_headers
@@ -57,8 +60,8 @@ end
     parse_params if @method == 'GET'
   end
 
-  def parse_request_line
-    @method, @resource, @version = @request_lines[0].split(' ')
+  def parse_request_line(line)
+    @method, @version,@source = line.split('')
   end
 
   def parse_headers
@@ -70,24 +73,27 @@ end
       @headers[key] = value
     end
   end
+  
+  request_string = File.read('get-index.request.txt')
+  
+  request_line = Request.new(request_string)
 
-request_string = File.read('get-index.request.txt')
+# Exempel resultat som ska fås:
 
-request_line = Request.new(request_string)
+puts "Method: #{request_line.method}" # -----> GET
 
-# Exempel resultat som ska fås. Detta ska ge :GET, det blev:
-
-p request_line.method
-
-p request_line.resource
-
-
-p request_line.version
-
-p request_line.headers
-
-p request_line.params
+puts "Resource: #{request_line.resource}" # -----> '/fruits?type=bananas&minrating=4'
 
 
+p "Version: #{request_line.version}" # -----> 'HTTP/1.1'
 
-# Detta ska ge :GET, det blev: 
+p "Headers: #{request_line.headers}" # ----->
+# {'Host' => 'fruits.com',
+# 'User-Agent' => 'ExampleBrowser/1.0',
+# 'Accept-Encoding' => 'gzip, deflate',
+# 'Accept' => '*/*'}
+
+p "Params: #{request_line.params} "# -----> {'type' => 'bananas', 'minrating' => '4'}
+
+
+
